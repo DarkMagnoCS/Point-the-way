@@ -18,3 +18,6 @@ def create_trip(request):
     else:
         form = TripForm()
     return render(request, 'itineraries/trip_form.html', {'form': form})
+
+def home(request):
+    return render(request, 'home.html')
