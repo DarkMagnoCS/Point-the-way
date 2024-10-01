@@ -37,6 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'trips',
 ]
 
 MIDDLEWARE = [
@@ -75,10 +77,15 @@ WSGI_APPLICATION = 'point_the_way_backend.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'djongo',
+        'NAME': 'Cluster101',
+        'CLIENT': {
+            'host': 'mongodb+srv://alejandromagnocs:667H1hnZ4a4DSylZ@cluster101.kejl4.mongodb.net/point_the_way?retryWrites=true&w=majority&appName=Cluster101'
+        }
     }
 }
+
+
 
 
 # Password validation
