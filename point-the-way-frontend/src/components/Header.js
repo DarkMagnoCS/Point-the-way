@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 const Header = ({ isLoggedIn, username }) => {
   return (
     <HeaderWrapper>
-      <Logo>Point-the-way</Logo>
+      <Logo>Point the Way</Logo>
       <Nav>
         {isLoggedIn ? (
           <User>Welcome, {username}</User>

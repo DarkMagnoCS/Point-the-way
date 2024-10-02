@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import mountainImage from './images/mountain.jpg';
 
 const HeroBanner = () => {
   return (
@@ -10,7 +11,7 @@ const HeroBanner = () => {
         <ActionButton>Start Planning</ActionButton>
       </TextContainer>
       <ImageContainer>
-        <img src="/path/to/travel-image.jpg" alt="Travel" />
+      <img src={mountainImage} alt="Travel" />
       </ImageContainer>
     </HeroWrapper>
   );
@@ -47,14 +48,24 @@ const ActionButton = styled.button`
   font-size: 1rem;
   color: white;
   background-color: #007bff;
-  border: none;
+  border: rounded;
   cursor: pointer;
 `;
 
 const ImageContainer = styled.div`
   flex: 1;
+  max-width: 500px; /* Set a max width for the image container */
+  overflow: hidden; /* Prevent any overflow */
+  margin-left: 2rem; /* Add some margin for spacing */
+
   img {
-    max-width: 100%;
-    height: auto;
+    width: 100%; /* Make sure the image takes up the full width of its container */
+    height: auto; /* Adjust height automatically to maintain aspect ratio */
+    object-fit: cover; /* Ensure the image covers the container without stretching */
+  }
+
+  @media (max-width: 768px) {
+    max-width: 100%; /* On smaller screens, the image takes up the full width */
+    margin-left: 0; /* Remove left margin on smaller screens */
   }
 `;
