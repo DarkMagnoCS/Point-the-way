@@ -25,7 +25,7 @@ export default Header;
 const HeaderWrapper = styled.header`
   position: fixed;
   top: 0;
-  width: 100%;
+  width: 100vw; /* Use viewport width to avoid overflow */
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -33,6 +33,8 @@ const HeaderWrapper = styled.header`
   background-color: #333;
   color: white;
   z-index: 1000;
+  box-sizing: border-box; /* Ensure padding is included in width calculation */
+  overflow-x: hidden; /* Prevent horizontal scroll */
 `;
 
 const Logo = styled.div`

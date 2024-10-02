@@ -2,12 +2,13 @@ import React from 'react';
 import styled from 'styled-components';
 
 const Footer = () => {
-  return (
-    <FooterWrapper>
-      <p>© 2024 Point-the-way. All rights reserved.</p>
-    </FooterWrapper>
-  );
-};
+    return (
+      <FooterWrapper>
+        <p>© 2024 Point-the-way. All rights reserved.</p>
+        <p>Made by Alejandro Contreras</p>
+      </FooterWrapper>
+    );
+  };
 
 export default Footer;
 
@@ -16,7 +17,8 @@ const FooterWrapper = styled.footer`
   background-color: #333;
   color: white;
   text-align: center;
-  position: absolute;
+  position: fixed;
   width: 100%;
   bottom: 0;
+  left: 0;
 `;
