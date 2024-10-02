@@ -1,11 +1,16 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
+import logoImage from './images/Point-logo.png';
 
 const Header = ({ isLoggedIn, username }) => {
   return (
     <HeaderWrapper>
-      <Logo>Point the Way</Logo>
+      <Logo>
+        <Link to="/"> {/* Wrap the logo in a Link to navigate to the home page */}
+          <img src={logoImage} alt="Point the Way Logo" />
+        </Link>
+      </Logo>
       <Nav>
         {isLoggedIn ? (
           <User>Welcome, {username}</User>
@@ -38,8 +43,12 @@ const HeaderWrapper = styled.header`
 `;
 
 const Logo = styled.div`
-  font-size: 1.5rem;
-  font-weight: bold;
+  img {
+    max-width: 180px; /* Set a max width to make sure the logo fits well */
+    height: auto; /* Maintain aspect ratio */
+    border-radius: 30px;
+    cursor: pointer; /* Show a pointer cursor on hover */
+  }
 `;
 
 const Nav = styled.nav`
