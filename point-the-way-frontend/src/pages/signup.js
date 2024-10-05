@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import zxcvbn from 'zxcvbn';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate from react-router-dom
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -14,6 +15,8 @@ const Signup = () => {
 
   const [passwordTouched, setPasswordTouched] = useState(false);
   const [confirmPasswordTouched, setConfirmPasswordTouched] = useState(false);
+  const [buttonClicked, setButtonClicked] = useState(false); // State to track button click for microanimation
+  const navigate = useNavigate(); // Initialize navigate
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -34,8 +37,14 @@ const Signup = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (isFormComplete()) {
-      // Submit form data to database here.
-      console.log("User created:", formData);
+      // Trigger the button microanimation
+      setButtonClicked(true);
+
+      // Redirect to dashboard after a slight delay to let the animation complete
+      setTimeout(() => {
+        console.log("User created:", formData);
+        navigate('/dashboard'); // Redirect to the dashboard path
+      }, 300); // Delay in milliseconds to sync with the button animation
     }
   };
 
@@ -137,6 +146,7 @@ const Signup = () => {
         <CreateAccountButton 
           type="submit" 
           disabled={!isFormComplete()} 
+          clicked={buttonClicked.toString()} // Pass button click state to the styled component
         >
           Create Account
         </CreateAccountButton>
@@ -224,7 +234,10 @@ const CreateAccountButton = styled.button`
 
   &:hover {
     background-color: ${(props) => (props.disabled ? '#ccc' : '#0056b3')};
-    transform: ${(props) => (!props.disabled ? 'scale(1.02)' : 'none')};
+  }
+
+  &:active {
+    transform: ${(props) => (!props.disabled && props.clicked === 'true' ? 'scale(0.98)' : 'none')};
   }
 `;
 
