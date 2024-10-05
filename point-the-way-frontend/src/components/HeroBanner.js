@@ -9,7 +9,7 @@ const HeroBanner = () => {
   // Handle button click
   const handleStartPlanning = () => {
     setTimeout(() => {
-      navigate('/signup'); // Redirect to signup after animation
+      navigate('/Signup'); // Redirect to signup after animation
     }, 500); // 500ms delay to allow animation
   };
 

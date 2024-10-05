@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import logoImage from './images/Point-logo.png';
+import zxcvbn from 'zxcvbn';
 
 const Signup = () => {
   const [formData, setFormData] = useState({
+    username: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -11,17 +12,23 @@ const Signup = () => {
     acceptedTerms: false
   });
 
+  const [passwordTouched, setPasswordTouched] = useState(false);
+  const [confirmPasswordTouched, setConfirmPasswordTouched] = useState(false);
+
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData({
       ...formData,
       [name]: type === 'checkbox' ? checked : value,
     });
+
+    if (name === 'password') setPasswordTouched(true);
+    if (name === 'confirmPassword') setConfirmPasswordTouched(true);
   };
 
   const isFormComplete = () => {
-    const { email, password, confirmPassword, city, acceptedTerms } = formData;
-    return email && password && confirmPassword && city && password === confirmPassword && acceptedTerms;
+    const { username, email, password, confirmPassword, city, acceptedTerms } = formData;
+    return username && email && password && confirmPassword && city && password === confirmPassword && acceptedTerms;
   };
 
   const handleSubmit = (e) => {
@@ -32,12 +39,38 @@ const Signup = () => {
     }
   };
 
+  const getPasswordStrength = () => {
+    const { password } = formData;
+    const result = zxcvbn(password);
+    return result.score;
+  };
+
+  const validatePassword = () => {
+    const { password } = formData;
+    if (password.length < 8) return "Password must be at least 8 characters long.";
+    if (!/[A-Z]/.test(password)) return "Password must contain at least one uppercase letter.";
+    if (!/[a-z]/.test(password)) return "Password must contain at least one lowercase letter.";
+    if (!/\d/.test(password)) return "Password must contain at least one number.";
+    return null;
+  };
+
+  const passwordsMatch = formData.password === formData.confirmPassword;
+
   return (
     <SignupWrapper>
       <Logo>
-        <img src={logoImage} alt="Point the Way Logo" />
+        <img src="/Point-logo.png" alt="Point the Way Logo" />
       </Logo>
       <Form onSubmit={handleSubmit}>
+        <Input 
+          type="text" 
+          name="username" 
+          placeholder="Username" 
+          value={formData.username} 
+          onChange={handleInputChange} 
+          required 
+          autoComplete="off"
+        />
         <Input 
           type="email" 
           name="email" 
@@ -53,7 +86,16 @@ const Signup = () => {
           value={formData.password} 
           onChange={handleInputChange} 
           required 
+          onFocus={() => setPasswordTouched(true)} // Track when the user starts typing
         />
+        {passwordTouched && validatePassword() && (
+          <ErrorMessage>{validatePassword()}</ErrorMessage>
+        )}
+        {passwordTouched && (
+          <StrengthMessage>
+            Password Strength: {["Too Weak", "Weak", "Fair", "Strong", "Very Strong"][getPasswordStrength()]}
+          </StrengthMessage>
+        )}
         <Input 
           type="password" 
           name="confirmPassword" 
@@ -61,7 +103,11 @@ const Signup = () => {
           value={formData.confirmPassword} 
           onChange={handleInputChange} 
           required 
+          onBlur={() => setConfirmPasswordTouched(true)} // Check after the user finishes typing
         />
+        {confirmPasswordTouched && !passwordsMatch && (
+          <ErrorMessage>Passwords do not match.</ErrorMessage>
+        )}
         <Input 
           type="text" 
           name="city" 
@@ -102,7 +148,7 @@ const Signup = () => {
         </GoogleButton>
       </OAuthContainer>
       <SignInLink>
-        Already a TripIt user? <Link to="/login">Sign In</Link>
+        Already a Point the Way user? <Link to="/login">Sign In</Link>
       </SignInLink>
     </SignupWrapper>
   );
@@ -139,6 +185,17 @@ const Input = styled.input`
   font-size: 1rem;
 `;
 
+const ErrorMessage = styled.div`
+  color: red;
+  font-size: 0.9rem;
+`;
+
+const StrengthMessage = styled.div`
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: ${({ strength }) => (strength < 2 ? 'red' : strength < 4 ? 'orange' : 'green')};
+`;
+
 const CheckboxWrapper = styled.div`
   display: flex;
   align-items: center;
@@ -157,16 +214,17 @@ const CheckboxWrapper = styled.div`
 
 const CreateAccountButton = styled.button`
   padding: 1rem;
-  background-color: ${props => (props.disabled ? '#ccc' : '#007bff')};
+  background-color: ${(props) => (props.disabled ? '#ccc' : '#007bff')};
   color: white;
   border: none;
   border-radius: 5px;
   margin: 1rem 0;
-  cursor: ${props => (props.disabled ? 'not-allowed' : 'pointer')};
-  transition: background-color 0.3s;
+  cursor: ${(props) => (props.disabled ? 'not-allowed' : 'pointer')};
+  transition: background-color 0.3s, transform 0.2s;
 
   &:hover {
-    background-color: ${props => (props.disabled ? '#ccc' : '#0056b3')};
+    background-color: ${(props) => (props.disabled ? '#ccc' : '#0056b3')};
+    transform: ${(props) => (!props.disabled ? 'scale(1.02)' : 'none')};
   }
 `;
 
