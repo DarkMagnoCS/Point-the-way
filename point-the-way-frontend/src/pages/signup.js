@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import zxcvbn from 'zxcvbn';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate from react-router-dom
+import mapboxgl from 'mapbox-gl';
+import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
+import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
+import { Link } from 'react-router-dom';
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -15,8 +18,7 @@ const Signup = () => {
 
   const [passwordTouched, setPasswordTouched] = useState(false);
   const [confirmPasswordTouched, setConfirmPasswordTouched] = useState(false);
-  const [buttonClicked, setButtonClicked] = useState(false); // State to track button click for microanimation
-  const navigate = useNavigate(); // Initialize navigate
+  const [suggestions, setSuggestions] = useState([]);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -27,6 +29,22 @@ const Signup = () => {
 
     if (name === 'password') setPasswordTouched(true);
     if (name === 'confirmPassword') setConfirmPasswordTouched(true);
+
+    if (name === 'city') {
+      fetchCitySuggestions(value);
+    }
+  };
+
+  const fetchCitySuggestions = async (input) => {
+    if (input.length > 2) {
+      const accessToken = 'placeholder'; // Replace with your Mapbox access token
+      const response = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${input}.json?access_token=${accessToken}&autocomplete=true&types=place`);
+      const data = await response.json();
+      const citySuggestions = data.features.map((feature) => feature.place_name);
+      setSuggestions(citySuggestions);
+    } else {
+      setSuggestions([]);
+    }
   };
 
   const isFormComplete = () => {
@@ -37,14 +55,8 @@ const Signup = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (isFormComplete()) {
-      // Trigger the button microanimation
-      setButtonClicked(true);
-
-      // Redirect to dashboard after a slight delay to let the animation complete
-      setTimeout(() => {
-        console.log("User created:", formData);
-        navigate('/dashboard'); // Redirect to the dashboard path
-      }, 300); // Delay in milliseconds to sync with the button animation
+      // Submit form data to the database here.
+      console.log("User created:", formData);
     }
   };
 
@@ -95,7 +107,6 @@ const Signup = () => {
           value={formData.password} 
           onChange={handleInputChange} 
           required 
-          onFocus={() => setPasswordTouched(true)} // Track when the user starts typing
         />
         {passwordTouched && validatePassword() && (
           <ErrorMessage>{validatePassword()}</ErrorMessage>
@@ -112,27 +123,28 @@ const Signup = () => {
           value={formData.confirmPassword} 
           onChange={handleInputChange} 
           required 
-          onBlur={() => setConfirmPasswordTouched(true)} // Check after the user finishes typing
+          onBlur={() => setConfirmPasswordTouched(true)} 
         />
         {confirmPasswordTouched && !passwordsMatch && (
           <ErrorMessage>Passwords do not match.</ErrorMessage>
         )}
+        
         <Input 
           type="text" 
           name="city" 
           placeholder="Home City" 
           value={formData.city} 
           onChange={handleInputChange} 
-          list="city-options" 
           required 
         />
-        <datalist id="city-options">
-          <option value="New York" />
-          <option value="London" />
-          <option value="Paris" />
-          <option value="Tokyo" />
-          <option value="Sydney" />
-        </datalist>
+        <SuggestionBox>
+          {suggestions.map((suggestion, index) => (
+            <SuggestionItem key={index} onClick={() => setFormData({ ...formData, city: suggestion })}>
+              {suggestion}
+            </SuggestionItem>
+          ))}
+        </SuggestionBox>
+
         <CheckboxWrapper>
           <input 
             type="checkbox" 
@@ -146,20 +158,13 @@ const Signup = () => {
         <CreateAccountButton 
           type="submit" 
           disabled={!isFormComplete()} 
-          clicked={buttonClicked.toString()} // Pass button click state to the styled component
         >
           Create Account
         </CreateAccountButton>
+        <AlreadyHaveAccount>
+  Already have an account? <Link to="/login">Login here</Link>
+</AlreadyHaveAccount>
       </Form>
-      <Divider>Or create an account with:</Divider>
-      <OAuthContainer>
-        <GoogleButton>
-          <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google" />
-        </GoogleButton>
-      </OAuthContainer>
-      <SignInLink>
-        Already a Point the Way user? <Link to="/login">Sign In</Link>
-      </SignInLink>
     </SignupWrapper>
   );
 };
@@ -206,6 +211,23 @@ const StrengthMessage = styled.div`
   color: ${({ strength }) => (strength < 2 ? 'red' : strength < 4 ? 'orange' : 'green')};
 `;
 
+const SuggestionBox = styled.ul`
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+  border: 1px solid #ccc;
+  max-height: 150px;
+  overflow-y: auto;
+`;
+
+const SuggestionItem = styled.li`
+  padding: 0.5rem;
+  cursor: pointer;
+  &:hover {
+    background-color: #f0f0f0;
+  }
+`;
+
 const CheckboxWrapper = styled.div`
   display: flex;
   align-items: center;
@@ -234,49 +256,21 @@ const CreateAccountButton = styled.button`
 
   &:hover {
     background-color: ${(props) => (props.disabled ? '#ccc' : '#0056b3')};
-  }
-
-  &:active {
-    transform: ${(props) => (!props.disabled && props.clicked === 'true' ? 'scale(0.98)' : 'none')};
+    transform: ${(props) => (!props.disabled ? 'scale(1.02)' : 'none')};
   }
 `;
 
-const Divider = styled.div`
-  margin: 2rem 0;
-  text-align: center;
-  font-size: 0.9rem;
-`;
-
-const OAuthContainer = styled.div`
-  display: flex;
-  justify-content: center;
-`;
-
-const GoogleButton = styled.button`
-  background: none;
-  border: none;
-  cursor: pointer;
-
-  img {
-    width: 30px;
-  }
-`;
-
-const SignInLink = styled.div`
+const AlreadyHaveAccount = styled.div`
   margin-top: 2rem;
   text-align: center;
   font-size: 0.9rem;
+  
   a {
     color: #007bff;
     text-decoration: none;
   }
-`;
 
-const Link = styled.a`
-  color: #007bff;
-  text-decoration: none;
-
-  &:hover {
+  a:hover {
     text-decoration: underline;
   }
 `;
