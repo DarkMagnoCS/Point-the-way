@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import styled from 'styled-components';
+import { FaTimes, FaTrashAlt } from 'react-icons/fa'; // Import icons
 
 const Dashboard = () => {
-  const [trips, setTrips] = useState(['Paris', 'New York']); // Example trips
+  const [trips, setTrips] = useState(['Paris', 'New York']);
   const [selectedTrip, setSelectedTrip] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newTrip, setNewTrip] = useState('');
   const [isDeletePromptOpen, setIsDeletePromptOpen] = useState(false);
+  const [newTrip, setNewTrip] = useState('');
   const isLoggedIn = true;
   const username = "Alejandro";
 
@@ -33,60 +34,62 @@ const Dashboard = () => {
     setIsDeletePromptOpen(false);
   };
 
-  // Toggle the modal
-  const toggleModal = () => {
-    setIsModalOpen(!isModalOpen);
-  };
-
-  // Toggle delete confirmation
+  // Toggle delete confirmation modal
   const toggleDeletePrompt = () => {
     setIsDeletePromptOpen(!isDeletePromptOpen);
+  };
+
+  // Toggle new destination modal
+  const toggleModal = () => {
+    setIsModalOpen(!isModalOpen);
   };
 
   return (
     <>
       <Header isLoggedIn={isLoggedIn} username={username} />
       <MainContent>
-        {/* Destinations Widget */}
-        <Widget>
-          <h2>Destinations</h2>
-          <TripList>
-            {trips.map((trip, index) => (
-              <TripItem key={index} onClick={() => handleTripSelect(trip)}>
-                {trip}
-              </TripItem>
-            ))}
-            <AddTripButton onClick={toggleModal}>+ Add Trip</AddTripButton>
-          </TripList>
+        <WidgetsRow>
+          <Widget>
+            <h2>Destinations</h2>
+            <TripList>
+              {trips.map((trip, index) => (
+                <TripItem key={index} onClick={() => handleTripSelect(trip)}>
+                  {trip}
+                </TripItem>
+              ))}
+              <AddTripButton onClick={toggleModal}>+ Add Destination</AddTripButton>
+            </TripList>
+          </Widget>
 
-          {selectedTrip && (
-            <TripDetails>
-              <h3>{selectedTrip}</h3>
-              <p>Here are the details for your trip to {selectedTrip}.</p>
-              <DeleteTripButton onClick={toggleDeletePrompt}>X</DeleteTripButton>
-            </TripDetails>
-          )}
-        </Widget>
+          <Widget>
+            <h2>Recent Activity</h2>
+            <p>Track the latest updates or actions here.</p>
+          </Widget>
 
-        {/* Recent Activity Widget */}
-        <Widget>
-          <h2>Recent Activity</h2>
-          <p>Track the latest updates or actions here.</p>
-        </Widget>
+          <Widget>
+            <h2>To-Do List</h2>
+            <p>Your tasks will appear here.</p>
+          </Widget>
+        </WidgetsRow>
 
-        {/* To-Do List Widget */}
-        <Widget>
-          <h2>To-Do List</h2>
-          <p>Manage your travel-related tasks.</p>
-        </Widget>
+        {selectedTrip && (
+          <TripDetails>
+            <h3>{selectedTrip}</h3>
+            <p>Here are the details for your trip to {selectedTrip}.</p>
+            <DeleteTripButton onClick={toggleDeletePrompt}>
+              <FaTrashAlt /> {/* Trash icon for delete */}
+            </DeleteTripButton>
+          </TripDetails>
+        )}
 
-        {/* New Trip Modal */}
         {isModalOpen && (
           <ModalOverlay>
             <ModalContent>
-              <CloseButton onClick={toggleModal}>X</CloseButton>
+              <CloseButton onClick={toggleModal}>
+                <FaTimes /> {/* Close icon */}
+              </CloseButton>
               <h3>New Destination</h3>
-              <ModalInput
+              <Input
                 type="text"
                 placeholder="Enter destination"
                 value={newTrip}
@@ -97,13 +100,12 @@ const Dashboard = () => {
           </ModalOverlay>
         )}
 
-        {/* Delete Trip Confirmation */}
         {isDeletePromptOpen && (
           <ModalOverlay>
             <ModalContent>
               <h3>Are you sure you want to delete this trip?</h3>
-              <button onClick={handleDeleteTrip}>Yes</button>
-              <button onClick={toggleDeletePrompt}>No</button>
+              <ConfirmDeleteButton onClick={handleDeleteTrip}>Yes, Delete</ConfirmDeleteButton>
+              <CancelDeleteButton onClick={toggleDeletePrompt}>Cancel</CancelDeleteButton>
             </ModalContent>
           </ModalOverlay>
         )}
@@ -118,16 +120,27 @@ export default Dashboard;
 // Styled Components
 const MainContent = styled.main`
   padding: 20px;
+  margin-top: 60px; /* To prevent content from hiding under the header */
+  min-height: calc(100vh - 120px); /* Prevents content from hiding under the footer */
+`;
+
+const WidgetsRow = styled.div`
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
+  flex-wrap: wrap;
   gap: 20px;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
 `;
 
 const Widget = styled.div`
-  background-color: #f9f9f9;
+  background-color: #f5f5f5;
   padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: 1px solid #ddd;
+  flex: 1;
+  min-width: 250px;
 `;
 
 const TripList = styled.div`
@@ -136,20 +149,20 @@ const TripList = styled.div`
 `;
 
 const TripItem = styled.div`
-  background-color: #f5f5f5;
+  background-color: #e7e7e7;
   padding: 10px;
   margin-bottom: 10px;
   cursor: pointer;
   border: 1px solid #ddd;
-
+  
   &:hover {
-    background-color: #e0e0e0;
+    background-color: #d0d0d0;
   }
 `;
 
 const AddTripButton = styled.button`
   padding: 10px;
-  background-color: #2196F3;
+  background-color: #007bff;
   color: white;
   border: none;
   cursor: pointer;
@@ -157,27 +170,29 @@ const AddTripButton = styled.button`
   border-radius: 5px;
 
   &:hover {
-    background-color: #1976d2;
+    background-color: #0056b3;
   }
 `;
 
 const TripDetails = styled.section`
   padding: 20px;
   border: 1px solid #ddd;
-  margin-top: 10px;
+  margin-top: 20px;
+  position: relative;
 `;
 
 const DeleteTripButton = styled.button`
-  padding: 8px;
-  background-color: red;
-  color: white;
+  background-color: transparent;
   border: none;
-  border-radius: 5px;
+  color: red;
+  position: absolute;
+  top: 10px;
+  right: 10px;
   cursor: pointer;
-  margin-top: 10px;
+  font-size: 18px;
 
   &:hover {
-    background-color: darkred;
+    color: darkred;
   }
 `;
 
@@ -198,6 +213,7 @@ const ModalContent = styled.div`
   padding: 20px;
   border-radius: 10px;
   width: 300px;
+  position: relative;
   text-align: center;
 `;
 
@@ -211,24 +227,57 @@ const CloseButton = styled.button`
   cursor: pointer;
 `;
 
+const Input = styled.input`
+  width: 90%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+`;
+
 const CreateButton = styled.button`
   padding: 10px;
-  background-color: #2196F3;
+  background-color: #007bff;
   color: white;
   border: none;
   cursor: pointer;
   font-size: 16px;
-  width: 100%;
   border-radius: 5px;
+  width: 100%;
 
   &:hover {
-    background-color: #1976d2;
+    background-color: #0056b3;
   }
 `;
 
-const ModalInput = styled.input`
+const ConfirmDeleteButton = styled.button`
   padding: 10px;
-  width: 100%;
-  margin-bottom: 10px;
+  background-color: red;
+  color: white;
+  border: none;
+  cursor: pointer;
   font-size: 16px;
+  border-radius: 5px;
+  width: 100%;
+  margin-top: 10px;
+
+  &:hover {
+    background-color: darkred;
+  }
+`;
+
+const CancelDeleteButton = styled.button`
+  padding: 10px;
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  border-radius: 5px;
+  width: 100%;
+  margin-top: 10px;
+
+  &:hover {
+    background-color: #5a6268;
+  }
 `;
